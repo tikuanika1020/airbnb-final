@@ -9,7 +9,6 @@ client = MongoClient(
 
 db = client["airbnb"]
 
-# 🔥 CLEAR OLD DATA FIRST
 db.listings.drop()
 db.calendar.drop()
 db.reviews.drop()
@@ -20,22 +19,18 @@ cities = ["sd", "salem", "portland", "la"]
 for city in cities:
     print(f"Loading {city}...")
 
-    # LISTINGS (limit)
     listings = pd.read_csv(f"listings_{city}.csv", nrows=5000)
     listings["city"] = city
     db.listings.insert_many(listings.to_dict("records"))
 
-    # NEIGHBORHOODS (small anyway)
     neighborhoods = pd.read_csv(f"neighbourhoods_{city}.csv")
     neighborhoods["city"] = city
     db.neighborhoods.insert_many(neighborhoods.to_dict("records"))
 
-    # REVIEWS (reduce more)
     reviews = pd.read_csv(f"reviews_{city}.csv", nrows=20000)
     reviews["city"] = city
     db.reviews.insert_many(reviews.to_dict("records"))
 
-    # CALENDAR (limit + filter)
     calendar = pd.read_csv(f"calendar_{city}.csv", nrows=30000)
     calendar["date"] = pd.to_datetime(calendar["date"])
 

@@ -1,44 +1,108 @@
+import os
+from pathlib import Path
+
+import certifi
 import pandas as pd
 from pymongo import MongoClient
-import certifi
 
-client = MongoClient(
-    "mongodb+srv://tikuanikaz_db_user:anika123@cluster-hw3.tp8k8jz.mongodb.net/?appName=Cluster-hw3",
-    tlsCAFile=certifi.where()
+MONGO_URI = os.getenv(
+    "MONGO_URI",
+    "mongodb://localhost:27017",
 )
 
-db = client["airbnb"]
 
-db.listings.drop()
-db.calendar.drop()
-db.reviews.drop()
-db.neighborhoods.drop()
+def get_database():
+    client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
+    return client["airbnb"]
 
-cities = ["sd", "salem", "portland", "la"]
 
-for city in cities:
-    print(f"Loading {city}...")
+def _insert_dataframe(collection, df):
+    records = df.where(pd.notnull(df), None).to_dict("records")
+    if records:
+        collection.insert_many(records)
+    return len(records)
 
-    listings = pd.read_csv(f"listings_{city}.csv", nrows=5000)
-    listings["city"] = city
-    db.listings.insert_many(listings.to_dict("records"))
 
-    neighborhoods = pd.read_csv(f"neighbourhoods_{city}.csv")
-    neighborhoods["city"] = city
-    db.neighborhoods.insert_many(neighborhoods.to_dict("records"))
+def load_all_data(base_dir=None):
+    base_path = Path(base_dir) if base_dir else Path(__file__).resolve().parent
+    parent_path = base_path.parent / "cs498_airbnb"
+    search_paths = [base_path, parent_path]
 
-    reviews = pd.read_csv(f"reviews_{city}.csv", nrows=20000)
-    reviews["city"] = city
-    db.reviews.insert_many(reviews.to_dict("records"))
+    listings_limit = int(os.getenv("LISTINGS_LIMIT", "5000"))
+    reviews_limit = int(os.getenv("REVIEWS_LIMIT", "15000"))
+    calendar_limit = int(os.getenv("CALENDAR_LIMIT", "30000"))
 
-    calendar = pd.read_csv(f"calendar_{city}.csv", nrows=30000)
-    calendar["date"] = pd.to_datetime(calendar["date"])
+    cities = ["sd", "salem", "portland", "la"]
+    summary = {
+        "listings": 0,
+        "calendar": 0,
+        "reviews": 0,
+        "neighborhoods": 0,
+    }
 
-    calendar = calendar[
-        calendar["date"].dt.month.isin([12, 1])
-    ]
+    resolved = {}
+    for city in cities:
+        for kind in ["listings", "reviews", "calendar", "neighbourhoods"]:
+            filename = f"{kind}_{city}.csv"
+            found = None
+            for candidate in search_paths:
+                path = candidate / filename
+                if path.exists():
+                    found = path
+                    break
+            if not found:
+                raise FileNotFoundError(
+                    f"Could not find {filename} in any of: {', '.join(str(p) for p in search_paths)}"
+                )
+            resolved[(city, kind)] = found
 
-    calendar["city"] = city
-    db.calendar.insert_many(calendar.to_dict("records"))
+    db = get_database()
+    staging_names = {
+        "listings": "listings_staging",
+        "calendar": "calendar_staging",
+        "reviews": "reviews_staging",
+        "neighborhoods": "neighborhoods_staging",
+    }
 
-print("DONE")
+    for stage_name in staging_names.values():
+        db[stage_name].drop()
+
+    try:
+        for city in cities:
+            listings = pd.read_csv(resolved[(city, "listings")], nrows=listings_limit)
+            listings["city"] = city
+            summary["listings"] += _insert_dataframe(db[staging_names["listings"]], listings)
+
+            neighborhoods = pd.read_csv(resolved[(city, "neighbourhoods")])
+            neighborhoods["city"] = city
+            summary["neighborhoods"] += _insert_dataframe(
+                db[staging_names["neighborhoods"]], neighborhoods
+            )
+
+            reviews = pd.read_csv(resolved[(city, "reviews")], nrows=reviews_limit)
+            reviews["city"] = city
+            summary["reviews"] += _insert_dataframe(db[staging_names["reviews"]], reviews)
+
+            calendar = pd.read_csv(resolved[(city, "calendar")], nrows=calendar_limit)
+            calendar["date"] = pd.to_datetime(calendar["date"], errors="coerce")
+            calendar = calendar[calendar["date"].dt.month.isin([12, 1])]
+            # Keep date as YYYY-MM-DD string so existing query pipelines work.
+            calendar["date"] = calendar["date"].dt.strftime("%Y-%m-%d")
+            calendar["city"] = city
+            summary["calendar"] += _insert_dataframe(db[staging_names["calendar"]], calendar)
+
+        for target_name, stage_name in staging_names.items():
+            db[target_name].drop()
+            db[stage_name].rename(target_name)
+    except Exception:
+        for stage_name in staging_names.values():
+            db[stage_name].drop()
+        raise
+
+    return summary
+
+
+if __name__ == "__main__":
+    result = load_all_data()
+    print("DONE")
+    print(result)

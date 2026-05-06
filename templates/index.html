@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Airbnb Explorer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">airbnb</div>
+    <nav class="main-nav">
+      <button class="nav-btn active" data-section="listingsSection">Listings</button>
+      <button class="nav-btn" data-section="reviewsSection">Reviews</button>
+      <button class="nav-btn" data-section="collectionsSection">Collections</button>
+      <button class="nav-btn" data-section="queriesSection">Queries</button>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <h1>Find stays and explore your Airbnb data</h1>
+      <p>Browse listing cards, open details with review snippets, and run your custom MongoDB queries.</p>
+      <div class="controls">
+        <button id="loadDataBtn" class="primary">Load / Reload Data</button>
+        <span id="status" class="status"></span>
+      </div>
+    </section>
+
+    <section id="listingsSection" class="content-section">
+      <div class="section-head">
+        <h2>Listings</h2>
+        <div class="section-actions">
+          <label for="cityFilter">City</label>
+          <select id="cityFilter">
+            <option value="">All</option>
+            <option value="sd">San Diego</option>
+            <option value="la">Los Angeles</option>
+            <option value="portland">Portland</option>
+            <option value="salem">Salem</option>
+          </select>
+          <button id="refreshListingsBtn" class="secondary">Refresh</button>
+        </div>
+      </div>
+      <div id="listingsGrid" class="card-grid"></div>
+      <div class="pager">
+        <button id="prevListingsBtn" class="secondary">Previous</button>
+        <span id="listingPageInfo"></span>
+        <button id="nextListingsBtn" class="secondary">Next</button>
+      </div>
+    </section>
+
+    <section id="listingDetailSection" class="content-section">
+      <h2>Selected Listing</h2>
+      <div id="listingDetail" class="detail-card">
+        <p>Click a listing card to view details.</p>
+      </div>
+    </section>
+
+    <section id="reviewsSection" class="content-section hidden">
+      <h2>Latest Reviews</h2>
+      <div id="reviewsList" class="stack"></div>
+    </section>
+
+    <section id="collectionsSection" class="content-section hidden">
+      <h2>Collections (Neighborhood Highlights)</h2>
+      <div id="collectionsGrid" class="card-grid"></div>
+    </section>
+
+    <section id="queriesSection" class="content-section hidden">
+      <h2>Query Explorer</h2>
+      <div class="query-grid">
+        {% for query_id, query in queries.items() %}
+          <button class="query-btn" data-query-id="{{ query_id }}">
+            <strong>Query {{ query_id }}: {{ query.name }}</strong>
+            <span>{{ query.description }}</span>
+          </button>
+        {% endfor %}
+      </div>
+      <div class="results split">
+        <div>
+          <h3 id="resultTitle">Query Result</h3>
+          <div id="tableContainer" class="table-wrap">
+            <p>Run a query to see results.</p>
+          </div>
+        </div>
+        <div>
+          <h3>Pipeline</h3>
+          <pre id="pipelineContainer" class="pipeline-view">Run a query to inspect the aggregation pipeline.</pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

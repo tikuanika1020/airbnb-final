@@ -1,0 +1,260 @@
+body {
+  margin: 0;
+  background: radial-gradient(circle at 10% 0%, #f4f7ff 0%, #eef2ff 35%, #f7f9fc 100%);
+  color: #1f2937;
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+}
+
+.topbar {
+  background: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid #dbe4ff;
+  backdrop-filter: blur(8px);
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand {
+  color: #5b6cff;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.main-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-btn,
+.primary,
+.secondary,
+.query-btn {
+  border-radius: 999px;
+  border: 1px solid #d4defb;
+  background: #ffffff;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-btn.active {
+  border-color: #5b6cff;
+  color: #3744cc;
+  background: #eef1ff;
+  font-weight: 600;
+}
+
+.primary {
+  background: linear-gradient(135deg, #5b6cff, #8b7bff);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 8px 20px rgba(91, 108, 255, 0.3);
+}
+
+.secondary:hover,
+.query-btn:hover,
+.nav-btn:hover {
+  border-color: #8da0f8;
+  transform: translateY(-1px);
+}
+
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.hero {
+  background: linear-gradient(120deg, #ffffff 0%, #f1f4ff 100%);
+  border: 1px solid #d9e3ff;
+  border-radius: 24px;
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 10px 30px rgba(79, 70, 229, 0.08);
+}
+
+.controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.status {
+  color: #4b5563;
+  font-size: 14px;
+}
+
+.content-section {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #dce5ff;
+  border-radius: 22px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 8px 24px rgba(30, 41, 59, 0.06);
+}
+
+.hidden {
+  display: none;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.section-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.listing-card,
+.collection-card {
+  border: 1px solid #dde6ff;
+  border-radius: 18px;
+  padding: 12px;
+  background: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.listing-card:hover,
+.collection-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(79, 70, 229, 0.12);
+  border-color: #9cb1ff;
+}
+
+.listing-photo {
+  width: 100%;
+  height: 150px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  background: linear-gradient(125deg, #5b6cff, #7dd3fc);
+}
+
+.listing-card h3,
+.collection-card h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+
+.listing-card p,
+.collection-card p {
+  margin: 4px 0;
+  color: #5b6477;
+  font-size: 14px;
+}
+
+.detail-card {
+  border: 1px solid #dce5ff;
+  border-radius: 18px;
+  padding: 14px;
+  background: #fcfdff;
+}
+
+.review-snippets li {
+  margin-bottom: 8px;
+}
+
+.stack {
+  display: grid;
+  gap: 10px;
+}
+
+.mini-card {
+  border: 1px solid #dce5ff;
+  border-radius: 16px;
+  padding: 10px;
+  background: #ffffff;
+}
+
+.query-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.query-btn {
+  border-radius: 16px;
+  text-align: left;
+  min-height: 90px;
+  background: #fcfdff;
+}
+
+.query-btn span {
+  display: block;
+  margin-top: 6px;
+  color: #67738b;
+}
+
+.results.split {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 12px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 8px;
+  border-bottom: 1px solid #e5e9f7;
+  text-align: left;
+  font-size: 13px;
+}
+
+th {
+  background: #f3f6ff;
+  color: #334155;
+}
+
+.pipeline-view {
+  background: #111a33;
+  color: #dbeafe;
+  border-radius: 14px;
+  padding: 12px;
+  min-height: 220px;
+  overflow: auto;
+  font-size: 12px;
+  border: 1px solid #2a3a6a;
+}
+
+.pager {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  align-items: center;
+}
+
+select {
+  border: 1px solid #ccd8ff;
+  background: #fff;
+  border-radius: 999px;
+  padding: 8px 12px;
+  color: #334155;
+}
